@@ -1,6 +1,7 @@
 import pandas as pd
 import xarray as xr 
 
+# obtain QN, RPIv1 and RPIv2 time series from CR2 data
 def get_QN_RPI():
     filepath = '../../../hyperdrought_data/series/tseries_QN_RPIs_3037_1850_2021.txt'
     df = pd.read_csv(filepath, sep='\s+', header = None)
