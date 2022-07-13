@@ -1,6 +1,5 @@
-import matplotlib.pyplot as plt
-plt.rcParams["font.family"] = 'Arial'
 import sys
+import matplotlib.pyplot as plt
 
 sys.path.append('../../processing')
 
@@ -14,6 +13,7 @@ rpiv2 = ds['RPIv2']
 
 # create figure
 fig = plt.figure(figsize=(12,6))
+plt.rcParams["font.family"] = 'Arial'
 
 # plot the data
 plt.plot(qn.time.values, qn.values, lw = 1,  color='blue', label='QN')
