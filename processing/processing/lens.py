@@ -23,6 +23,12 @@ def get_LENS2_annual_precip(init_date='1850-01-01', end_date='2100-12-31'):
     da_acc = da_year*3600*24*days_per_year*1000 # mean annual acc precip in mm
     return da_acc
 
+def get_LENS2_annual_precip_QNEW():
+
+    da = get_LENS2_annual_precip()
+    qne = da.sel(lat= -33.455497, lon = (-70.0)%360, method='nearest').drop(['lat','lon'])
+    qnw = da.sel(lat= -33.455497, lon = (-71.25)%360, method='nearest').drop(['lat','lon'])
+    return (qnw + qne)/2.0
     
 
     
