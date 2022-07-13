@@ -11,10 +11,10 @@ from cartopy.io.shapereader import Reader
 
 sys.path.append('../../processing')
 
-from processing import utils as ut
+import processing.lens as lens
 
 # get LENS2 precip
-da = ut.get_LENS2_annual_precip()
+da = lens.get_LENS2_annual_precip()
 da = da.sel(time=slice('1981', '2010')).mean('time').mean('run')
 fname = '../../../hyperdrought_data/shp/Regiones/Regional.shp'
 
