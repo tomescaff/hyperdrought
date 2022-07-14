@@ -18,7 +18,7 @@ qn = se.get_QN_annual_precip()
 lens2 = lens.get_LENS2_annual_precip_QNEW()
 
 # create figure
-fig, axs = plt.subplots(5, 1, figsize=(10,7.5), constrained_layout=True)
+fig, axs = plt.subplots(5, 1, figsize=(10,7.5), constrained_layout=False, sharex=True)
 
 # plt params
 plt.rcParams["font.family"] = 'Arial'
@@ -40,13 +40,13 @@ width_ = 0.9 * (bins_[1] - bins_[0])
 center_ = (bins_[:-1] + bins_[1:]) / 2
 axs[0].bar(center_, hist_qn, align='center', width=width_, edgecolor='blue', facecolor='lightskyblue', color='blue', alpha = 0.75, label = 'QN 1950-2021')
 axs[1].bar(center, hist_lens2_full, align='center', width=width, edgecolor='blue', facecolor='lightskyblue', color='blue', alpha = 0.75, label = 'LENS2 1950-2021')
-axs[2].bar(center, hist_lens2_present, align='center', width=width, edgecolor='blue', facecolor='lightskyblue', color='blue', alpha = 0.75, label = 'LENS2 actual')
-axs[3].bar(center, hist_lens2_past, align='center', width=width, edgecolor='blue', facecolor='lightskyblue', color='blue', alpha = 0.75, label = 'LENS2 counterfactual')
-axs[4].bar(center, hist_lens2_future, align='center', width=width, edgecolor='blue', facecolor='lightskyblue', color='blue', alpha = 0.75, label = 'LENS2 future')
+axs[2].bar(center, hist_lens2_present, align='center', width=width, edgecolor='blue', facecolor='lightskyblue', color='blue', alpha = 0.75, label = 'LENS2 actual (1991-2020)')
+axs[3].bar(center, hist_lens2_past, align='center', width=width, edgecolor='blue', facecolor='lightskyblue', color='blue', alpha = 0.75, label = 'LENS2 counterfactual (1851-1880)')
+axs[4].bar(center, hist_lens2_future, align='center', width=width, edgecolor='blue', facecolor='lightskyblue', color='blue', alpha = 0.75, label = 'LENS2 future (2071-2100)')
 
 # # plot pdfs
 x = np.linspace(xmin, xmax, 1000)
-for dist, col, lab in [(gamma, 'k', 'gamma fit')]:#zip((gamma, weibull_min, invgamma, lognorm), ('b', 'k', 'r', 'g'), ('gamma', 'weibull_min', 'invgamma', 'lognorm')):
+for dist, col, lab in [(gamma, 'k', 'gamma fit')]:
     axs[0].plot(x, dist.pdf(x, *dist.fit(qn.values)), lw=1.0, color=col, label=lab)
     axs[1].plot(x, dist.pdf(x, *dist.fit(np.ravel(lens2.sel(time=slice('1950', '2021')).values))), lw=1.0, color=col, label=lab)
     axs[2].plot(x, dist.pdf(x, *dist.fit(np.ravel(lens2.sel(time=slice('1991', '2020')).values))), lw=1.0, color=col, label=lab)
@@ -57,12 +57,11 @@ for ax in axs:
     plt.sca(ax)
     plt.grid(lw=0.2, ls='--', color='grey') # set grid
     plt.legend() # set legend
-    # plt.xticks(np.arange(-3.5,3.5+0.5,0.5))
-    # plt.yticks(np.arange(0,0.9+0.2,0.2))
     # plt.xlim([xmin, xmax]) # set xlim
-    # plt.ylim([0, 0.9]) # set ylim
+    plt.ylim([0, 0.005]) # set ylim
     plt.xlabel('Annual Precip (s.u.)') # set labels
     plt.ylabel('PDF')
 
-# plt.savefig('../../../hyperdrought_data/png/QN_distribution.png', dpi=300, bbox_inches = 'tight', pad_inches = 0)
+plt.subplots_adjust(hspace=.0)
+plt.savefig('../../../hyperdrought_data/png/LENS2_QN_distribution.png', dpi=300, bbox_inches = 'tight', pad_inches = 0)
 plt.show()
