@@ -59,7 +59,7 @@ for ax in axs:
     plt.legend() # set legend
     # plt.xlim([xmin, xmax]) # set xlim
     plt.ylim([0, 0.005]) # set ylim
-    plt.xlabel('Annual Precip (s.u.)') # set labels
+    plt.xlabel('Annual Precip (mm)') # set labels
     plt.ylabel('PDF')
 
 plt.subplots_adjust(hspace=.0)
