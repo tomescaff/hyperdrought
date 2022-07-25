@@ -20,3 +20,11 @@ def get_QN_annual_precip():
     df = df.set_index('time')
     da = df['precip'].to_xarray()
     return da
+
+def get_QN_annual_precip_long_record():
+    filepath = '../../../hyperdrought_data/series/SANTIAGO_QN_1866_2020_RENE_ext.csv'
+    df = pd.read_csv(filepath, delimiter=";", decimal=".", parse_dates=['FECHA'])
+    months = ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC']
+    df_sum = df[months].sum(axis=1)
+    da = xr.DataArray(df_sum, coords=[df['FECHA']], dims=['time'])
+    return da 
