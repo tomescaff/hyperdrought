@@ -7,8 +7,8 @@ sys.path.append('..')
 
 import processing.lens as lens
 
-init_year = '1981'
-end_year = '2010'
+init_year = '1979'
+end_year = '2019'
 
 da = lens.get_LENS2_annual_precip()
 da = da.sel(time=slice(init_year, end_year))

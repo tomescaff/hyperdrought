@@ -7,10 +7,10 @@ sys.path.append('..')
 
 import processing.cr2met as cr2met
 
-init_year = '1981'
-end_year = '2010'
+init_year = '1979'
+end_year = '2019'
 
-da = cr2met.get_cr2met_annual_precip()
+da = cr2met.get_cr2met_annual_precip() # mm per year
 da = da.sel(time=slice(init_year, end_year))
 
 t, n, m = da.values.shape
