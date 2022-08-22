@@ -49,7 +49,6 @@ ax_line = fig.add_subplot(gs[0, 1])
 ax_rr   = fig.add_subplot(gs[0, 0], sharey=ax_line)
 ax_fet  = fig.add_subplot(gs[0, 2], sharey=ax_line)
 
-
 # plot the mean value
 plt.sca(ax_line)
 plt.plot(x, x*0+qn.mean().values, lw=1.5, color='b', ls='--')
@@ -68,15 +67,12 @@ plt.grid(lw=0.4, ls='--', color='grey')
 plt.xlabel('Time (year)')
 plt.xlim([1860, 2023])
 plt.ylim([0, 850])
-# plt.title('January Tmax time series at Quinta Normal')
-# 
+
 # Hide the right and top spines
 ax = plt.gca()
 ax.spines.right.set_visible(False)
 ax.spines.top.set_visible(False)
 ax.tick_params(direction="in")
-
-
 
 gammafit_66_15 = gamma.fit(qn.sel(time=slice('1866','1915')).values, floc=0, scale=1)
 gammafit_72_21 = gamma.fit(qn.sel(time=slice('1972','2021')).values, floc=0, scale=1)
@@ -109,18 +105,13 @@ ax.tick_params(direction="in")
 for tick in ax.xaxis.get_major_ticks():
     tick.label.set_fontsize(0) 
     tick.label.set_color('white') 
-# for tick in ax.yaxis.get_major_ticks():
-#     tick.label.set_fontsize(9) 
-#     tick.label.set_weight('light')
 plt.bar([0], height=2019*slope + intercept-qn.mean().values, bottom=qn.mean().values, width=0.75, color='r', alpha=0.4)
 plt.bar([1.35], height=qn.sel(time='2019').values-qn.mean().values, bottom=qn.mean().values, width=0.75, color='b', alpha=0.4)
 plt.axhline(qn.mean().values,  lw=1.5, color='b', ls='--')
 plt.xlim([-1.35, 2.7])
 plt.xticks([0, 1.35])
 plt.errorbar(x=0, y=2019*slope + intercept, yerr=delta[x==2019], lw=1.1, color='grey', capsize=4, fmt = '.', capthick=1.3, ecolor='grey', alpha=1)
-#ax.spines.bottom.set_visible(False)
-#plt.ylim([27,33.6])
-#plt.savefig('../../../megafires_data/png/display_QN_series_with_trend_full.png', dpi=300)
+plt.savefig('../../../hyperdrought_data/png/display_QN_series_with_trend_full.png', dpi=300)
 plt.show()
 
 ########################
@@ -146,7 +137,7 @@ print(f'RR = {rr_gamma_val}, FAR = {far_gamma_val}, tau = {tau_gamma_val}')
 # Bootstrap using gamma floc=0
 ########################
 
-nboot = 100 # 100000
+nboot = 100
 rr_gamma = np.zeros((nboot,))
 far_gamma = np.zeros((nboot,))
 
