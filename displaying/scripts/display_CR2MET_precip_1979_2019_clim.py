@@ -56,8 +56,8 @@ gl.xlocator = mticker.FixedLocator(xticks)
 gl.ylocator = mticker.FixedLocator(yticks)
 
 # plot the climatology and reshape color bar 
-pcm = ax.pcolormesh(da.lon.values, da.lat.values, da.values, cmap=cmaps.precip3_16lev, zorder=4, vmin=0, vmax=4250)
-# pcm = ax.pcolormesh(da.lon.values, da.lat.values, da.values, cmap=cmaps.amwg_blueyellowred, zorder=4, vmin=0, vmax=4000)
+# pcm = ax.pcolormesh(da.lon.values, da.lat.values, da.values, cmap=cmaps.precip3_16lev, zorder=4, vmin=0, vmax=4250)
+pcm = ax.pcolormesh(da.lon.values, da.lat.values, da.values, cmap=cmaps.amwg_blueyellowred, zorder=4, vmin=0, vmax=4000)
 cbar = plt.colorbar(pcm, aspect = 40, pad=0.03)
 
 # draw the coastlines
@@ -77,6 +77,6 @@ ax.add_patch(circle)
 cbar.ax.get_yaxis().labelpad = 12
 cbar.ax.set_ylabel('Annual Precip Clim (1979-2019) (mm)', fontdict={'fontsize':10})
 
-plt.savefig('../../../hyperdrought_data/png/CR2MET_precip_1979_2019_clim.png', dpi=300, bbox_inches = 'tight', pad_inches = 0)
-# plt.savefig('../../../hyperdrought_data/png/CR2MET_precip_1979_2019_clim_v2.png', dpi=300, bbox_inches = 'tight', pad_inches = 0)
+# plt.savefig('../../../hyperdrought_data/png/CR2MET_precip_1979_2019_clim.png', dpi=300, bbox_inches = 'tight', pad_inches = 0)
+plt.savefig('../../../hyperdrought_data/png/CR2MET_precip_1979_2019_clim_v2.png', dpi=300, bbox_inches = 'tight', pad_inches = 0)
 plt.show()
