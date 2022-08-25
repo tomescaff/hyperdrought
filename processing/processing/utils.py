@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 from . import series as se
 from . import cr2met as cr2
+from scipy import stats
 from scipy.stats import pearsonr
 
 # get return periods from arg as numpy array
@@ -54,4 +55,44 @@ def get_corr_QN_CR2MET():
     
     return xr.DataArray(matrix, coords=[pr.lat, pr.lon], dims=['lat', 'lon'])
 
+# get ranking 2019 annual precip
+def get_CR2MET_2019_annual_precip_ranking():
+    
+    pr = cr2.get_cr2met_annual_precip()
 
+    ntime, nlat, nlon = pr.values.shape
+    matrix = np.zeros((nlat,nlon))
+
+    for ilat in range(nlat):
+        for ilon in range(nlon):
+            series = pr[:, ilat, ilon].values
+            if np.isnan(series[0]):
+                matrix[ilat, ilon] = np.nan
+            else:
+                ranks = stats.rankdata(series)
+                matrix[ilat, ilon] = ranks[-1]
+    
+    # to xarray DataArray
+    da = xr.DataArray(matrix, coords = [pr.lat, pr.lon], dims = ['lat', 'lon'])
+    return da
+
+# get ranking 2016 DJF precip
+def get_CR2MET_2016_JFM_precip_ranking():
+    
+    pr = cr2.get_cr2met_JFM_precip_acc()
+
+    ntime, nlat, nlon = pr.values.shape
+    matrix = np.zeros((nlat,nlon))
+
+    for ilat in range(nlat):
+        for ilon in range(nlon):
+            series = pr[:, ilat, ilon].values
+            if np.isnan(series[0]):
+                matrix[ilat, ilon] = np.nan
+            else:
+                ranks = stats.rankdata(series)
+                matrix[ilat, ilon] = ranks[-4]
+    
+    # to xarray DataArray
+    da = xr.DataArray(matrix, coords = [pr.lat, pr.lon], dims = ['lat', 'lon'])
+    return da
