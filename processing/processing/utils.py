@@ -55,6 +55,49 @@ def get_corr_QN_CR2MET():
     
     return xr.DataArray(matrix, coords=[pr.lat, pr.lon], dims=['lat', 'lon'])
 
+# get corr between Puerto Montt and CR2MET
+def get_corr_PM_CR2MET():
+    qn = se.get_PM_JFM_precip()
+    pr = cr2.get_cr2met_JFM_precip_acc()
+    
+    qn = qn.sel(time=slice('1979','2019'))
+    pr = pr.sel(time=slice('1979','2019'))
+
+    t, n, m = pr.values.shape
+    matrix = np.zeros((n,m))
+    for i in range(n):
+        for j in range(m):
+            series = pr[:,i,j].values
+            if np.isnan(series[0]):
+                matrix[i,j] = np.nan
+            else:
+                r, p = pearsonr(series, qn.values)
+                matrix[i,j] = r
+    
+    return xr.DataArray(matrix, coords=[pr.lat, pr.lon], dims=['lat', 'lon'])
+
+# get corr between Coyhaique and CR2MET
+def get_corr_CO_CR2MET():
+    qn = se.get_CO_JFM_precip()
+    pr = cr2.get_cr2met_JFM_precip_acc()
+    
+    qn = qn.sel(time=slice('1979','2019'))
+    pr = pr.sel(time=slice('1979','2019'))
+
+    t, n, m = pr.values.shape
+    matrix = np.zeros((n,m))
+    for i in range(n):
+        for j in range(m):
+            series = pr[:,i,j].values
+            if np.isnan(series[0]):
+                matrix[i,j] = np.nan
+            else:
+                r, p = pearsonr(series, qn.values)
+                matrix[i,j] = r
+    
+    return xr.DataArray(matrix, coords=[pr.lat, pr.lon], dims=['lat', 'lon'])
+
+
 # get ranking 2019 annual precip
 def get_CR2MET_2019_annual_precip_ranking():
     
