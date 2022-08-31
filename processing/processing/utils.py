@@ -139,3 +139,25 @@ def get_CR2MET_2016_JFM_precip_ranking():
     # to xarray DataArray
     da = xr.DataArray(matrix, coords = [pr.lat, pr.lon], dims = ['lat', 'lon'])
     return da
+
+def get_nearest_90p_contour(x, y, x_min, x_max, y_min, y_max):
+    X = np.vstack((x,y)).T
+    sigma = np.cov(X.T)
+    det = np.linalg.det(sigma)
+    inv = np.linalg.inv(sigma)
+    def fun(x0,x1):
+        x = np.array([x0,x1])
+        const=1/(2*np.pi*det)**0.5
+        arg = -(x-X.mean(axis=0)).T@inv@(x-X.mean(axis=0))
+        return np.exp(arg)*const
+    def d2(x0,x1):
+        x = np.array([x0,x1])
+        return (x-X.mean(axis=0)).T@inv@(x-X.mean(axis=0))
+    funvec = np.vectorize(fun)
+    d2vec = np.vectorize(d2)
+    x_ = np.linspace(x_min,x_max,100)
+    y_ = np.linspace(y_min,y_max,100)
+    xx,yy = np.meshgrid(x_,y_)
+    zz = funvec(xx,yy)
+    dd_pres = d2vec(xx,yy)
+    return xx, yy, dd_pres
