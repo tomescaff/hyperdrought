@@ -1,5 +1,6 @@
 import pandas as pd
 import xarray as xr 
+import numpy as np
 from os.path import join, abspath, dirname
 
 currentdir = dirname(abspath(__file__))
@@ -59,3 +60,40 @@ def get_CO_JFM_precip():
     da = da.sel(time=slice('1954','2021'))
     da = da.resample(time='1YS').sum('time')
     return da
+
+# obtain MJJAS Nino3.4 anomaly time series from CPC
+def get_MJJAS_NINO34a():
+    filename = 'ersst5.nino.mth.91-20.ascii.txt'
+    filepath = join(currentdir, relpath, filename)
+    df = pd.read_csv(filepath, sep='\s+', parse_dates={'time': ['YR', 'MON']})
+    df = df.rename({'ANOM.3':'NINO3.4a'}, axis='columns')
+    df = df.set_index('time')
+    da = df['NINO3.4a'].to_xarray()
+    da = da.sel(time=slice('1950', '2021'))
+    da = da.where(da.time.dt.month.isin([5,6,7,8,9]), drop=True)
+    da = da.resample(time='1YS').mean('time')
+    return da
+
+def get_MJJAS_Nino34_long_record():
+    filename = 'nino34.long.anom.data.txt'
+    filepath = join(currentdir, relpath, filename)
+    df = pd.read_csv(filepath, sep='\s+', skiprows=1, skipfooter=7, engine='python', header=None)
+    iniyear = str(int(df.iloc[0,0]))
+    endyear = str(int(df.iloc[-1,0]))
+    datetime = pd.date_range(start=iniyear+'-01-01', end=endyear+'-12-31', freq='MS')
+    da = xr.DataArray(np.ravel(df.iloc[:,1:]), coords=[datetime], dims=['time'])
+    da[da==-99.99] = np.nan
+    da = da.sel(time=slice('1870', '2021'))
+    da = da.where(da.time.dt.month.isin([5,6,7,8,9]), drop=True)
+    da = da.resample(time='1YS').mean('time')
+    return da
+
+def get_QN_MJJAS_precip_long_record():
+    filename = 'SANTIAGO_QN_1866_2020_RENE_ext.csv'
+    filepath = join(currentdir, relpath, filename)
+    df = pd.read_csv(filepath, delimiter=";", decimal=".", parse_dates=['FECHA'])
+    months = ['MAY', 'JUN', 'JUL', 'AGO', 'SEP']
+    df_sum = df[months].sum(axis=1)
+    da = xr.DataArray(df_sum, coords=[df['FECHA']], dims=['time'])
+    return da 
+
