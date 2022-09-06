@@ -16,8 +16,17 @@ sys.path.append(join(currentdir,'../../processing'))
 import processing.lens as lens
 
 # get LENS1 precip
-da = lens.get_LENS1_annual_precip_NOAA()
-da = da.sel(time=slice('1979', '2019')).mean('time').mean('run')
+dlist = [31, 30, 31, 31, 30]
+dsum = sum(dlist)
+annual = lens.get_LENS1_annual_precip_NOAA() # mm/year
+winter = lens.get_LENS1_MJJAS_precip_NOAA()*dsum # mm/season
+
+annual = annual.sel(time=slice('1979', '2019'))
+winter = winter.sel(time=slice('1979', '2019'))
+winter['time'] = annual.time
+contrib = winter.mean('time')/annual.mean('time')
+da = contrib.mean('run')*100
+
 fname = '../../../hyperdrought_data/shp/Regiones/Regional.shp'
 
 # create figure
@@ -57,9 +66,7 @@ gl.xlocator = mticker.FixedLocator(xticks)
 gl.ylocator = mticker.FixedLocator(yticks)
 
 # plot the climatology and reshape color bar 
-# pcm = ax.pcolormesh(da.lon.values, da.lat.values, da.values, cmap=cmaps.precip3_16lev, zorder=4, vmin=0, vmax=4250, edgecolor='k', lw=0.05)
-
-pcm = ax.pcolormesh(da.lon.values, da.lat.values, da.values, cmap=cmaps.amwg_blueyellowred, zorder=4, vmin=0, vmax=4000, edgecolor='k', lw=0.05)
+pcm = ax.pcolormesh(da.lon.values, da.lat.values, da.values, cmap=cmaps.amwg_blueyellowred, zorder=4, vmin=10, vmax=90, edgecolor='k', lw=0.05)
 cbar = plt.colorbar(pcm, aspect = 40, pad=0.03)
 
 # draw the coastlines
@@ -75,5 +82,5 @@ ax.spines['geo'].set_linewidth(0.4)
 circle = plt.Circle((-70.6828, -33.4450), 0.2, color='k', fill=False, zorder=4, lw=0.5)
 ax.add_patch(circle)
 
-plt.savefig(join(currentdir,'../../../hyperdrought_data/png/LENS_precip_annual_1979_2019_clim.png'), dpi=300, bbox_inches = 'tight', pad_inches = 0)
+plt.savefig(join(currentdir,'../../../hyperdrought_data/png/LENS_precip_annual_1979_2019_winter_contrib.png'), dpi=300, bbox_inches = 'tight', pad_inches = 0)
 plt.show()

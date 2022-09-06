@@ -1,6 +1,10 @@
 import xarray as xr
 import pandas as pd
 import numpy as np
+from os.path import join, abspath, dirname
+
+currentdir = dirname(abspath(__file__))
+relpath = '../../../hyperdrought_data/'
 
 def from_mon_to_year(series_mon_ave, init_date='1850-01-01', end_date='2100-12-31'):
     
@@ -83,7 +87,9 @@ def get_LENS2_ONDJFMA_precip(init_date='1850-01-01', end_date='2100-12-31'):
 
 def get_LENS1_monthly_precip_NOAA(init_date='1920-01-01', end_date='2100-12-31'):
     
-    ds = xr.open_dataset(f'../../../hyperdrought_data/LENS_ALL/LENS_PRECT_NOAA_mon.nc')
+    filename = 'LENS_PRECT_NOAA_mon.nc'
+    filepath = join(currentdir, relpath, 'LENS_ALL', filename)
+    ds = xr.open_dataset(filepath)
     da = ds['pr']*1e-3*3600*24*1000 # monthly mean precip flux in mm/day
     dr = pd.date_range(init_date, end_date, freq='1D')
     one_per_day = xr.DataArray(np.ones((dr.size,)), coords=[dr], dims=['time'])
@@ -101,7 +107,9 @@ def get_LENS1_annual_precip(init_date='1920-01-01', end_date='2100-12-31'):
 
 def get_LENS1_annual_precip_NOAA(init_date='1920-01-01', end_date='2100-12-31'):
     
-    ds = xr.open_dataset(f'../../../hyperdrought_data/LENS_ALL/LENS_PRECT_NOAA_mon.nc')
+    filename = 'LENS_PRECT_NOAA_mon.nc'
+    filepath = join(currentdir, relpath, 'LENS_ALL', filename)
+    ds = xr.open_dataset(filepath)
     da = ds['pr']*1e-3
     da_year, days_per_year = from_mon_to_year(da, init_date, end_date) # mean annual precip flux in m/s, days per year
     da_acc = da_year*3600*24*days_per_year*1000 # mean annual acc precip in mm
