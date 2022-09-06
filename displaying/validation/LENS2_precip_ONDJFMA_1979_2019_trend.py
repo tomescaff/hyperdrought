@@ -8,22 +8,20 @@ import cartopy.feature as cfeature
 from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
 from cartopy.mpl.gridliner import LONGITUDE_FORMATTER, LATITUDE_FORMATTER
 from cartopy.io.shapereader import Reader
+from os.path import join, abspath, dirname
 
-sys.path.append('../../processing')
-
-import processing.cr2met as cr2met
+currentdir = dirname(abspath(__file__))
 
 # get LENS2 precip
-trend = xr.open_dataset('../../../hyperdrought_data/data/LENS2_trend_ONDJFMA_1979_2019.nc')['slope']
+trend = xr.open_dataset(join(currentdir, '../../../hyperdrought_data/data/LENS2_trend_ONDJFMA_1979_2019.nc'))['slope']
 da = trend.mean('run')*10 
 
-fname = '../../../hyperdrought_data/shp/Regiones/Regional.shp'
+fname = join(currentdir, '../../../hyperdrought_data/shp/Regiones/Regional.shp')
 
 # create figure
 fig = plt.figure(figsize=(8,7))
 plt.rcParams["font.family"] = 'Arial'
 plt.rcParams["font.size"] = 8
-
 
 # define projection
 ax = plt.axes(projection=ccrs.PlateCarree())
@@ -68,7 +66,7 @@ ax.add_geometries(Reader(fname).geometries(), ccrs.Mercator.GOOGLE, facecolor='n
 
 #  reduce outline patch linewidths
 cbar.outline.set_linewidth(0.4)
-ax.outline_patch.set_linewidth(0.4)
+ax.spines['geo'].set_linewidth(0.4)
 
 circle = plt.Circle((-70.6828, -33.4450), 0.2, color='k', fill=False, zorder=4, lw=0.5)
 ax.add_patch(circle)
@@ -77,5 +75,5 @@ ax.add_patch(circle)
 cbar.ax.get_yaxis().labelpad = 12
 cbar.ax.set_ylabel('ONDJFMA Precip Trend (1979-2019) (mm/day/dec)', fontdict={'fontsize':10})
 
-plt.savefig('../../../hyperdrought_data/png/LENS2_precip_trend_ONDJFMA_1979_2019.png', dpi=300, bbox_inches = 'tight', pad_inches = 0)
+plt.savefig(join(currentdir, '../../../hyperdrought_data/png/LENS2_precip_ONDJFMA_1979_2019_trend.png'), dpi=300, bbox_inches = 'tight', pad_inches = 0)
 plt.show()

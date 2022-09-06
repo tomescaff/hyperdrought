@@ -11,12 +11,14 @@ from cartopy.io.shapereader import Reader
 from os.path import join, abspath, dirname
 
 currentdir = dirname(abspath(__file__))
+sys.path.append(join(currentdir,'../../processing'))
 
-# get LENS2 precip
-trend = xr.open_dataset(join(currentdir, '../../../hyperdrought_data/data/LENS2_norm_trend_1979_2019.nc'))['slope']
-da = trend.mean('run')*10*100
+import processing.lens as lens
 
-fname = join(currentdir, '../../../hyperdrought_data/shp/Regiones/Regional.shp')
+# get LENS1 precip
+da = lens.get_LENS2_annual_precip_NOAA()
+da = da.sel(time=slice('1979', '2019')).std('time').mean('run')
+fname = '../../../hyperdrought_data/shp/Regiones/Regional.shp'
 
 # create figure
 fig = plt.figure(figsize=(8,7))
@@ -46,8 +48,8 @@ resol = '50m'
 land = cfeature.NaturalEarthFeature('physical', 'land',  scale=resol, edgecolor='k', facecolor=cfeature.COLORS['land'])
 ocean = cfeature.NaturalEarthFeature('physical', 'ocean', scale=resol, edgecolor='none', facecolor=cfeature.COLORS['water'])
 
-ax.add_feature(land, linewidth=0.0, alpha=0.5, zorder=-2)
-ax.add_feature(ocean, alpha = 0.5, zorder=-1)
+ax.add_feature(land, linewidth=0.0, alpha=0.5)
+ax.add_feature(ocean, alpha = 0.5)
 
 # add grid using previous ticks
 gl = ax.gridlines(crs=ccrs.PlateCarree(), linewidth=0.5, color='grey', alpha=0.7, linestyle='--', draw_labels=False)
@@ -55,14 +57,14 @@ gl.xlocator = mticker.FixedLocator(xticks)
 gl.ylocator = mticker.FixedLocator(yticks)
 
 # plot the climatology and reshape color bar 
-pcm = ax.pcolormesh(da.lon.values, da.lat.values, da.values, cmap=cmaps.amwg_blueyellowred_r, zorder=1, vmin=-15, vmax=15, edgecolor='k', lw=0.05)
+pcm = ax.pcolormesh(da.lon.values, da.lat.values, da.values, cmap='jet', zorder=4, vmin=0, vmax=700, edgecolor='k', lw=0.05)
 cbar = plt.colorbar(pcm, aspect = 40, pad=0.03)
 
 # draw the coastlines
 land = cfeature.NaturalEarthFeature('physical', 'land',  scale=resol, edgecolor='k', facecolor='none')
-ax.add_feature(land, linewidth=0.5, alpha=1, zorder=2)
+ax.add_feature(land, linewidth=0.5, alpha=1, zorder=5)
 
-ax.add_geometries(Reader(fname).geometries(), ccrs.Mercator.GOOGLE, facecolor='none', edgecolor='k', zorder=3, lw=0.4)
+ax.add_geometries(Reader(join(currentdir, fname)).geometries(), ccrs.Mercator.GOOGLE, facecolor='none', edgecolor='k', zorder=6, lw=0.4)
 
 #  reduce outline patch linewidths
 cbar.outline.set_linewidth(0.4)
@@ -71,5 +73,5 @@ ax.spines['geo'].set_linewidth(0.4)
 circle = plt.Circle((-70.6828, -33.4450), 0.2, color='k', fill=False, zorder=4, lw=0.5)
 ax.add_patch(circle)
 
-plt.savefig(join(currentdir, '../../../hyperdrought_data/png/LENS2_precip_annual_1979_2019_norm_trend.png'), dpi=300, bbox_inches = 'tight', pad_inches = 0)
+plt.savefig(join(currentdir,'../../../hyperdrought_data/png/LENS2_precip_annual_1979_2019_std.png'), dpi=300, bbox_inches = 'tight', pad_inches = 0)
 plt.show()
