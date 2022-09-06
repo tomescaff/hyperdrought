@@ -181,3 +181,13 @@ def get_LENS1_ONDJFMA_precip_NOAA(init_date='1920-01-01', end_date='2100-12-31')
     lens_mjjas_acc = lens_mjjas_acc.where(lens_mjjas_acc.time.dt.month==1, drop=True)
     lens_mjjas_mm_day = lens_mjjas_acc/dsum
     return lens_mjjas_mm_day
+
+def get_LENS1_JFM_precip_NOAA(init_date='1920-01-01', end_date='2100-12-31'):
+    
+    da_mm_month = get_LENS1_monthly_precip_NOAA(init_date, end_date)
+    mlist = [1, 2, 3]
+    m = len(mlist)
+    lens_mjjas = da_mm_month.where(da_mm_month.time.dt.month.isin(mlist), drop=True)
+    lens_mjjas_acc = lens_mjjas.rolling(min_periods=m, time=m, center=True).sum('time')
+    lens_mjjas_acc = lens_mjjas_acc.where(lens_mjjas_acc.time.dt.month==2, drop=True)
+    return lens_mjjas_acc
