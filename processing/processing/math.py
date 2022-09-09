@@ -23,4 +23,16 @@ def mle_gamma_2d(xarr, Tarr, init_params):
     xopt = fmin(func=maxlkh, x0 = init_params, args=(xarr, Tarr))
     return xopt
 
+def mle_gamma_2d_fast(xarr, Tarr, init_params):
+
+    def gamma_with_trend_shift(x, T, sigma0, eta, alpha):
+        return gamma.pdf(x, eta, 0, sigma0*np.exp(alpha*T))
+
+    vfun = np.vectorize(gamma_with_trend_shift) 
+
+    def maxlkh(params, *args):
+        return -np.sum(np.log(vfun(*args, *params)))
+
+    return fmin(func=maxlkh, x0 = init_params, args=(xarr, Tarr))
+
 
