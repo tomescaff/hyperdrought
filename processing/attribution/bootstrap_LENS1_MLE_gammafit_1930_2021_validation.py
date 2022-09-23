@@ -26,7 +26,7 @@ lens1_prec_arr = np.ravel(lens1_prec_norm.values)
 
 
 # # bootstrap
-nboot = 1000
+nboot = 10000
 bspreds_sigma0 = np.zeros((nboot,))
 bspreds_eta = np.zeros((nboot,))
 bspreds_alpha = np.zeros((nboot,))

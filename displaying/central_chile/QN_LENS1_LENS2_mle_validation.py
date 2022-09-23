@@ -6,13 +6,13 @@ from os.path import join
 
 relpath = '../../../hyperdrought_data/output/'
 
-filename = 'MLE_precip_QN_GMST_10_validation.nc'
+filename = 'MLE_precip_QN_GMST_10000_validation.nc'
 qn = xr.open_dataset(join(relpath, filename))
 
-filename = 'MLE_precip_LENS1_GMST_10_validation.nc'
+filename = 'MLE_precip_LENS1_GMST_10000_validation.nc'
 lens1 = xr.open_dataset(join(relpath, filename))
 
-filename = 'MLE_precip_LENS2_GMST_10_validation.nc'
+filename = 'MLE_precip_LENS2_GMST_1000_validation.nc'
 lens2 = xr.open_dataset(join(relpath, filename))
 
 model_names = ['observations', 'lens1', 'lens2']
@@ -41,6 +41,7 @@ plt.yticks(y_pos, model_names)
 # plt.xlim([28,30])
 ax.invert_yaxis()  # labels read top-to-bottom
 ax.set_xlabel(varname)
+ax.set_xlabel('mu0')
 ax.spines.right.set_visible(False)
 ax.spines.left.set_visible(False)
 ax.spines.top.set_visible(False)
@@ -92,7 +93,7 @@ ax.spines.left.set_visible(False)
 ax.spines.top.set_visible(False)
 
 plt.tight_layout()
-#plt.savefig('../../../hyperdrought_data/png/QN_LENS1_LENS2_mle_validation.png', dpi=300, bbox_inches = 'tight', pad_inches = 0)
+plt.savefig('../../../hyperdrought_data/png/QN_LENS1_LENS2_mle_validation.png', dpi=300, bbox_inches = 'tight', pad_inches = 0)
 plt.show()
 
 

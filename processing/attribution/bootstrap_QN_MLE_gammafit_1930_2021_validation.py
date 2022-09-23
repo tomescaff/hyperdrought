@@ -24,7 +24,7 @@ qn = qn.where(qn.time.dt.year != 2019, drop=True)
 qn = qn/qn.mean('time')
 
 # # bootstrap
-nboot = 1000
+nboot = 10000
 bspreds_sigma0 = np.zeros((nboot,))
 bspreds_eta = np.zeros((nboot,))
 bspreds_alpha = np.zeros((nboot,))
