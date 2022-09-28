@@ -109,6 +109,17 @@ def get_LENS2_JFM_precip_NOAA(init_date='1850-01-01', end_date='2100-12-31'):
     lens_mjjas_acc = lens_mjjas_acc.where(lens_mjjas_acc.time.dt.month==2, drop=True)
     return lens_mjjas_acc
 
+def get_LENS2_JFM_precip_NOAA_PM():
+    
+    lens2 = get_LENS2_JFM_precip_NOAA()
+    # lon: 286.2, 287.5
+    # lat: -41.937173, -40.994764
+    nw = lens2.sel(lat= -40.994764, lon = 286.2, method='nearest').drop(['lat','lon'])
+    ne = lens2.sel(lat= -40.994764, lon = 287.5, method='nearest').drop(['lat','lon'])
+    sw = lens2.sel(lat= -41.937173, lon = 286.2, method='nearest').drop(['lat','lon'])
+    se = lens2.sel(lat= -41.937173, lon = 287.5, method='nearest').drop(['lat','lon'])
+    return (nw + ne + sw + se)/4.0
+
 def get_LENS2_ONDJFMA_precip(init_date='1850-01-01', end_date='2100-12-31'):
     
     da_mm_month = get_LENS2_monthly_precip(init_date, end_date)
@@ -141,6 +152,30 @@ def get_LENS1_annual_precip(init_date='1920-01-01', end_date='2100-12-31'):
     da_year, days_per_year = from_mon_to_year(da, init_date, end_date) # mean annual precip flux in m/s, days per year
     da_acc = da_year*3600*24*days_per_year*1000 # mean annual acc precip in mm
     return da_acc
+
+def get_LENS1_annual_precip_control_run_QNEW():
+    
+    filename = 'LENS_pr_mon_mean_control_run_chile.nc'
+    filepath = join(currentdir, relpath, 'LENS_ALL', filename)
+    ds = xr.open_dataset(filepath)
+    da = ds['PRECT']
+    qne = da.sel(lat= -33.455497, lon = (-70.0)%360, method='nearest').drop(['lat','lon'])
+    qnw = da.sel(lat= -33.455497, lon = (-71.25)%360, method='nearest').drop(['lat','lon'])
+    qn = (qnw + qne)/2.0
+    qn = qn*1000*3600*24
+    init = list(range(12))
+    days = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+    
+    qn_annual = qn[init[0]::12].values*days[0]
+    for i, d in zip(init, days):
+        if i == 0:
+            continue
+        else:
+            monthly = qn[i::12].values*d
+            qn_annual = qn_annual + monthly
+    
+    da = xr.DataArray(qn_annual, coords=[qn[init[0]::12].time], dims=['time'])
+    return da
 
 def get_LENS1_annual_precip_NOAA(init_date='1920-01-01', end_date='2100-12-31'):
     
@@ -201,3 +236,12 @@ def get_LENS1_JFM_precip_NOAA(init_date='1920-01-01', end_date='2100-12-31'):
     lens_mjjas_acc = lens_mjjas.rolling(min_periods=m, time=m, center=True).sum('time')
     lens_mjjas_acc = lens_mjjas_acc.where(lens_mjjas_acc.time.dt.month==2, drop=True)
     return lens_mjjas_acc
+
+def get_LENS1_JFM_precip_NOAA_PM():
+    
+    lens1 = get_LENS1_JFM_precip_NOAA()
+    nw = lens1.sel(lat= -40.994764, lon = 286.2, method='nearest').drop(['lat','lon'])
+    ne = lens1.sel(lat= -40.994764, lon = 287.5, method='nearest').drop(['lat','lon'])
+    sw = lens1.sel(lat= -41.937173, lon = 286.2, method='nearest').drop(['lat','lon'])
+    se = lens1.sel(lat= -41.937173, lon = 287.5, method='nearest').drop(['lat','lon'])
+    return (nw + ne + sw + se)/4.0

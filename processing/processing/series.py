@@ -37,7 +37,7 @@ def get_QN_annual_precip_long_record():
     da = xr.DataArray(df_sum, coords=[df['FECHA']], dims=['time'])
     return da 
 
-# obtain Puerto Montt time series from CR2 explorer
+# obtain Puerto Montt JFM time series from CR2 explorer
 def get_PM_JFM_precip():
     filename = 'PM_JFM_precip_CR2.csv'
     filepath = join(currentdir, relpath, filename)
@@ -47,6 +47,17 @@ def get_PM_JFM_precip():
     da = df['precip'].to_xarray()
     da = da.sel(time=slice('1950','2021'))
     da = da.resample(time='1YS').sum('time')
+    return da
+
+# obtain Puerto Montt monthly time series from CR2 explorer
+def get_PM_mon_precip():
+    filename = 'PM_mon_precip_CR2.csv'
+    filepath = join(currentdir, relpath, filename)
+    df = pd.read_csv(filepath, delimiter=",", decimal=".", parse_dates={'time': ['agno', ' mes', ' dia']})
+    df = df.rename({' valor':'precip'}, axis='columns')
+    df = df.set_index('time')
+    da = df['precip'].to_xarray()
+    da = da.sel(time=slice('1950','2021'))
     return da
 
 # obtain Coyhaique time series from CR2 explorer
