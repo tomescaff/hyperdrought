@@ -71,7 +71,12 @@ cbar.outline.set_linewidth(0.4)
 ax.spines['geo'].set_linewidth(0.4)
 
 circle = plt.Circle((-70.6828, -33.4450), 0.2, color='k', fill=False, zorder=4, lw=0.5)
+circle_pm = plt.Circle((-73.095833, -41.447499), 0.2, color='k', fill=False, zorder=4, lw=0.5)
+# lon: 286.2, 287.5
+# lat: -41.937173, -40.994764
+
 ax.add_patch(circle)
+ax.add_patch(circle_pm)
 
 plt.savefig(join(currentdir, '../../../hyperdrought_data/png/LENS2_precip_JFM_1979_2019_clim.png'), dpi=300, bbox_inches = 'tight', pad_inches = 0)
 plt.show()
