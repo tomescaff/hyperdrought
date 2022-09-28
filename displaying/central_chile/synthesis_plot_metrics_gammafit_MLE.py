@@ -5,12 +5,12 @@ from os.path import join
 
 relpath = '../../../hyperdrought_data/output/'
 obs_mle_1880 = pd.read_csv(join(relpath, 'metrics_QN_MLE_1880_2019_gammafit_1930_2021.csv'), index_col=0)
-#lens1_mle_cr = pd.read_csv(join(relpath, 'metrics_LENS1_MLE_crun_2017_normfit_1930_2021_by_return_period.csv'), index_col=0)
+lens1_mle_cr = pd.read_csv(join(relpath, 'metrics_LENS1_MLE_crun_2019_gammafit_1930_2021_by_return_period.csv'), index_col=0)
 lens2_mle_1880 = pd.read_csv(join(relpath, 'metrics_LENS2_MLE_1880_2019_gammafit_1850_2021_by_return_period.csv'), index_col=0)
 
 models = [ 
             obs_mle_1880,
-            obs_mle_1880,
+            lens1_mle_cr,
             lens2_mle_1880, 
          ]
 model_names = [
@@ -97,7 +97,7 @@ plt.xticks([0.1, 1.0, 1e1, 1e2, 1e3, 1e4, 1e5, 1e6, 1e7, 1e8, 1e9])
 plt.axvline(1, color='k', lw=1.0)
 
 plt.tight_layout()
-# plt.savefig('../../../hyperdrought_data/png/sysnthesis_plot_metrics_normfit_MLE.png', dpi=300, bbox_inches = 'tight', pad_inches = 0)
+plt.savefig('../../../hyperdrought_data/png/sysnthesis_plot_metrics_gammafit_MLE.png', dpi=300, bbox_inches = 'tight', pad_inches = 0)
 plt.show()
 
 
