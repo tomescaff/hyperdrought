@@ -12,7 +12,7 @@ qn = xr.open_dataset(join(relpath, filename))
 filename = 'MLE_precip_LENS1_GMST_10000_validation.nc'
 lens1 = xr.open_dataset(join(relpath, filename))
 
-filename = 'MLE_precip_LENS2_GMST_1000_validation.nc'
+filename = 'MLE_precip_LENS2_GMST_10000_validation.nc'
 lens2 = xr.open_dataset(join(relpath, filename))
 
 model_names = ['observations', 'lens1', 'lens2']

@@ -245,3 +245,22 @@ def get_LENS1_JFM_precip_NOAA_PM():
     sw = lens1.sel(lat= -41.937173, lon = 286.2, method='nearest').drop(['lat','lon'])
     se = lens1.sel(lat= -41.937173, lon = 287.5, method='nearest').drop(['lat','lon'])
     return (nw + ne + sw + se)/4.0
+
+def get_LENS1_JFM_precip_control_run_PM():
+    
+    filename = 'LENS_pr_mon_mean_control_run_chile.nc'
+    filepath = join(currentdir, relpath, 'LENS_ALL', filename)
+    ds = xr.open_dataset(filepath)
+    lens1 = ds['PRECT']
+    nw = lens1.sel(lat= -40.994764, lon = 286.2, method='nearest').drop(['lat','lon'])
+    ne = lens1.sel(lat= -40.994764, lon = 287.5, method='nearest').drop(['lat','lon'])
+    sw = lens1.sel(lat= -41.937173, lon = 286.2, method='nearest').drop(['lat','lon'])
+    se = lens1.sel(lat= -41.937173, lon = 287.5, method='nearest').drop(['lat','lon'])
+    pm = (nw + ne + sw + se)/4.0
+    pm = pm*1000*3600*24
+    pma = pm.values
+    
+    pm_JFM = pma[0::12]*31 + pma[1::12]*28 + pma[2::12]*31
+
+    da = xr.DataArray(pm_JFM, coords=[pm[1::12].time], dims=['time'])
+    return da
