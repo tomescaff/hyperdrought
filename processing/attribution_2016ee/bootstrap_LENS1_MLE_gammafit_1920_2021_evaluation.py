@@ -23,7 +23,7 @@ lens1_gmst_arr = np.tile(lens1_gmst.values, lens1_prec.shape[0])
 lens1_prec_arr = np.ravel(lens1_prec.values)
 
 # # bootstrap
-nboot = 100
+nboot = 1000
 bspreds_sigma0 = np.zeros((nboot,))
 bspreds_eta = np.zeros((nboot,))
 bspreds_alpha = np.zeros((nboot,))

@@ -16,14 +16,14 @@ import processing.series as se
 lens1_gmst_full = gmst.get_gmst_annual_lens1_ensmean()
 lens1_prec_full = lens.get_LENS1_annual_precip_NOAA_QNEW()
 
-lens1_gmst = lens1_gmst_full.sel(time=slice('1930', '2021'))
-lens1_prec = lens1_prec_full.sel(time=slice('1930', '2021'))
+lens1_gmst = lens1_gmst_full.sel(time=slice('1920', '2021'))
+lens1_prec = lens1_prec_full.sel(time=slice('1920', '2021'))
 
 lens1_gmst_arr = np.tile(lens1_gmst.values, lens1_prec.shape[0])
 lens1_prec_arr = np.ravel(lens1_prec.values)
 
 # # bootstrap
-nboot = 100
+nboot = 1000
 bspreds_sigma0 = np.zeros((nboot,))
 bspreds_eta = np.zeros((nboot,))
 bspreds_alpha = np.zeros((nboot,))
