@@ -112,4 +112,4 @@ for col, thr in mapping:
     df.loc['delta c-a', col] = np.quantile(bspreds_delta, [thr], axis = 0)
 
 df = df.applymap(lambda x: round(float(x),2))
-df.to_csv(join(currentdir,f'../../../hyperdrought_data/output/metrics_LENS1_MLE_crun_{ac_year}_gammafit_1930_2021_by_return_period.csv'))
+df.to_csv(join(currentdir,f'../../../hyperdrought_data/output/metrics_LENS1_MLE_crun_{ac_year}_gammafit_1920_2021_by_return_period.csv'))
