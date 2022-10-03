@@ -60,7 +60,7 @@ df.loc['far c-a', 'raw'] = far_ca
 df.loc['delta c-a', 'raw'] = delta
 
 # bootstrap MLE
-nboot = 100
+nboot = 10000
 filepath = '../../../hyperdrought_data/output/PM_MLE_precip_PM_GMST_'+str(nboot)+'_evaluation.nc'
 bspreds = xr.open_dataset(join(currentdir, filepath))
 bspreds_sigma0 = bspreds.sigma0.values
