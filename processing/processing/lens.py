@@ -73,6 +73,13 @@ def get_LENS2_annual_precip_NOAA_QNEW():
     qnw = da.sel(lat= -33.455497, lon = (-71.25)%360, method='nearest').drop(['lat','lon'])
     return (qnw + qne)/2.0
 
+def get_LENS2_annual_precip_NOAA_QN_NN():
+    
+    lens2 = get_LENS2_annual_precip_NOAA()
+    lon, lat = -70.6828, -33.4450
+    qn = lens2.sel(lat = lat, lon = lon%360, method='nearest').drop(['lat','lon'])
+    return qn
+
 def get_LENS2_MJJAS_precip(init_date='1850-01-01', end_date='2100-12-31'):
 
     da_mm_month = get_LENS2_monthly_precip(init_date, end_date)
@@ -119,6 +126,13 @@ def get_LENS2_JFM_precip_NOAA_PM():
     sw = lens2.sel(lat= -41.937173, lon = 286.2, method='nearest').drop(['lat','lon'])
     se = lens2.sel(lat= -41.937173, lon = 287.5, method='nearest').drop(['lat','lon'])
     return (nw + ne + sw + se)/4.0
+
+def get_LENS2_JFM_precip_NOAA_PM_NN():
+    
+    lens2 = get_LENS2_JFM_precip_NOAA()
+    lon, lat = -73.095833, -41.447499
+    pm = lens2.sel(lat = lat, lon = lon%360, method='nearest').drop(['lat','lon'])
+    return pm
 
 def get_LENS2_ONDJFMA_precip(init_date='1850-01-01', end_date='2100-12-31'):
     
@@ -177,6 +191,29 @@ def get_LENS1_annual_precip_control_run_QNEW():
     da = xr.DataArray(qn_annual, coords=[qn[init[0]::12].time], dims=['time'])
     return da
 
+def get_LENS1_annual_precip_control_run_QN_NN():
+    
+    filename = 'LENS_pr_mon_mean_control_run_chile.nc'
+    filepath = join(currentdir, relpath, 'LENS_ALL', filename)
+    ds = xr.open_dataset(filepath)
+    da = ds['PRECT']
+    lon, lat = -70.6828, -33.4450
+    qn = da.sel(lat = lat, lon = lon%360, method='nearest').drop(['lat','lon'])
+    qn = qn*1000*3600*24
+    init = list(range(12))
+    days = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+    
+    qn_annual = qn[init[0]::12].values*days[0]
+    for i, d in zip(init, days):
+        if i == 0:
+            continue
+        else:
+            monthly = qn[i::12].values*d
+            qn_annual = qn_annual + monthly
+    
+    da = xr.DataArray(qn_annual, coords=[qn[init[0]::12].time], dims=['time'])
+    return da
+
 def get_LENS1_annual_precip_NOAA(init_date='1920-01-01', end_date='2100-12-31'):
     
     filename = 'LENS_PRECT_NOAA_mon.nc'
@@ -200,6 +237,13 @@ def get_LENS1_annual_precip_NOAA_QNEW():
     qne = da.sel(lat= -33.455497, lon = (-70.0)%360, method='nearest').drop(['lat','lon'])
     qnw = da.sel(lat= -33.455497, lon = (-71.25)%360, method='nearest').drop(['lat','lon'])
     return (qnw + qne)/2.0
+
+def get_LENS1_annual_precip_NOAA_QN_NN():
+    
+    lens1 = get_LENS1_annual_precip_NOAA()
+    lon, lat = -70.6828, -33.4450
+    pm = lens1.sel(lat = lat, lon = lon%360, method='nearest').drop(['lat','lon'])
+    return pm
 
 def get_LENS1_MJJAS_precip_NOAA(init_date='1920-01-01', end_date='2100-12-31'):
     
@@ -246,6 +290,13 @@ def get_LENS1_JFM_precip_NOAA_PM():
     se = lens1.sel(lat= -41.937173, lon = 287.5, method='nearest').drop(['lat','lon'])
     return (nw + ne + sw + se)/4.0
 
+def get_LENS1_JFM_precip_NOAA_PM_NN():
+    
+    lens1 = get_LENS1_JFM_precip_NOAA()
+    lon, lat = -73.095833, -41.447499
+    pm = lens1.sel(lat = lat, lon = lon%360, method='nearest').drop(['lat','lon'])
+    return pm
+
 def get_LENS1_JFM_precip_control_run_PM():
     
     filename = 'LENS_pr_mon_mean_control_run_chile.nc'
@@ -257,6 +308,22 @@ def get_LENS1_JFM_precip_control_run_PM():
     sw = lens1.sel(lat= -41.937173, lon = 286.2, method='nearest').drop(['lat','lon'])
     se = lens1.sel(lat= -41.937173, lon = 287.5, method='nearest').drop(['lat','lon'])
     pm = (nw + ne + sw + se)/4.0
+    pm = pm*1000*3600*24
+    pma = pm.values
+    
+    pm_JFM = pma[0::12]*31 + pma[1::12]*28 + pma[2::12]*31
+
+    da = xr.DataArray(pm_JFM, coords=[pm[1::12].time], dims=['time'])
+    return da
+
+def get_LENS1_JFM_precip_control_run_PM_NN():
+    
+    filename = 'LENS_pr_mon_mean_control_run_chile.nc'
+    filepath = join(currentdir, relpath, 'LENS_ALL', filename)
+    ds = xr.open_dataset(filepath)
+    lens1 = ds['PRECT']
+    lon, lat = -73.095833, -41.447499
+    pm = lens1.sel(lat = lat, lon = lon%360, method='nearest').drop(['lat','lon'])
     pm = pm*1000*3600*24
     pma = pm.values
     
