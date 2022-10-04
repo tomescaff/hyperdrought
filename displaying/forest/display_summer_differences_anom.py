@@ -51,5 +51,5 @@ plt.plot(x, dist.pdf(x, *dist.fit(ma2)), color='red')
 plt.plot(x, dist.pdf(x, *dist.fit(ma3)), color='grey')
 
 #plt.axvline(0.45, color='k')
-
+plt.savefig(join(currentdir, relpath, 'summer_differences_anom.png'), dpi=300)
 plt.show()
