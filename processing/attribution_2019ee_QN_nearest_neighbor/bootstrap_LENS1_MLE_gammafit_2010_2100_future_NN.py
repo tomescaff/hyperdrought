@@ -23,7 +23,7 @@ lens1_gmst_arr = np.tile(lens1_gmst.values, lens1_prec.shape[0])
 lens1_prec_arr = np.ravel(lens1_prec.values)
 
 # # bootstrap
-nboot = 1000
+nboot = 100
 bspreds_sigma0 = np.zeros((nboot,))
 bspreds_eta = np.zeros((nboot,))
 bspreds_alpha = np.zeros((nboot,))
@@ -41,5 +41,5 @@ ds = xr.Dataset({
     'eta':    xr.DataArray(bspreds_eta,    coords=[iter], dims=['iter']),
     'alpha':  xr.DataArray(bspreds_alpha,  coords=[iter], dims=['iter']), 
 })
-filepath = '../../../hyperdrought_data/output/MLE_precip_LENS1_GMST_'+str(nboot)+'_future_NN.nc'
+filepath = '../../../hyperdrought_data/output/MLE_2019ee_LENS1_GMST_'+str(nboot)+'_future_QN_NN.nc'
 ds.to_netcdf(join(currentdir,filepath))

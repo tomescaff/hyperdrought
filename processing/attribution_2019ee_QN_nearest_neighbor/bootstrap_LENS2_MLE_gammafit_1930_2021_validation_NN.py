@@ -43,5 +43,5 @@ ds = xr.Dataset({
     'eta':    xr.DataArray(bspreds_eta,    coords=[iter], dims=['iter']),
     'alpha':  xr.DataArray(bspreds_alpha,  coords=[iter], dims=['iter']), 
 })
-filepath = '../../../hyperdrought_data/output/QN_MLE_precip_LENS2_GMST_'+str(nboot)+'_validation_NN.nc'
+filepath = '../../../hyperdrought_data/output/MLE_2019ee_LENS2_GMST_'+str(nboot)+'_validation_QN_NN.nc'
 ds.to_netcdf(join(currentdir,filepath))
