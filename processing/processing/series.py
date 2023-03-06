@@ -37,6 +37,17 @@ def get_QN_annual_precip_long_record():
     da = xr.DataArray(df_sum, coords=[df['FECHA']], dims=['time'])
     return da 
 
+# obtain CU time series from CR2 explorer
+def get_CU_annual_precip():
+    filename = 'DMC_acc_annual_precip_curico_90p.csv'
+    relpath = '../../../hyperdrought_data/DMC/'
+    filepath = join(currentdir, relpath, filename)
+    df = pd.read_csv(filepath, delimiter=",", decimal=".", parse_dates={'time': ['agno', ' mes', ' dia']})
+    df = df.rename({' valor':'precip'}, axis='columns')
+    df = df.set_index('time')
+    da = df['precip'].to_xarray()
+    return da
+
 # obtain Puerto Montt JFM time series from CR2 explorer
 def get_PM_JFM_precip():
     filename = 'PM_JFM_precip_CR2.csv'
