@@ -9,21 +9,20 @@ currentdir = dirname(abspath(__file__))
 sys.path.append(join(currentdir, '../../processing'))
 
 import processing.gmst as gmst
-import processing.lens as lens
-import processing.math as pmath
 import processing.series as se
+import processing.math as pmath
+import processing.cr2met_v25 as cr2met
 
-lens1_gmst_full = gmst.get_gmst_annual_lens1_ensmean()
-lens1_prec_full = lens.get_LENS1_JFM_precip_NOAA_PM()
+smf = gmst.get_gmst_annual_5year_smooth()
+qnf = cr2met.get_regional_index().sel(time=slice('1960', '2021'))
 
-lens1_gmst = lens1_gmst_full.sel(time=slice('1950', '2021'))
-lens1_prec = lens1_prec_full.sel(time=slice('1950', '2021'))
+sm = smf.sel(time=slice('1960','2021'))
+qn = qnf.sel(time=slice('1960','2021'))
 
-lens1_prec_norm = lens1_prec/lens1_prec.mean('time')
+sm = sm.where(sm.time.dt.year != 2019, drop=True)
+qn = qn.where(qn.time.dt.year != 2019, drop=True)
 
-lens1_gmst_arr = np.tile(lens1_gmst.values, lens1_prec_norm.shape[0])
-lens1_prec_arr = np.ravel(lens1_prec_norm.values)
-
+qn = qn/qn.mean('time')
 
 # # bootstrap
 nboot = 10
@@ -32,7 +31,7 @@ bspreds_eta = np.zeros((nboot,))
 bspreds_alpha = np.zeros((nboot,))
 
 for i in range(nboot):
-    qn_i, sm_i = bootstrap(lens1_prec_arr, lens1_gmst_arr)
+    qn_i, sm_i = bootstrap(qn.values, sm.values)
     xopt_i = pmath.mle_gamma_2d_v2(qn_i, sm_i, [0.09, 10.83, -0.09])
     bspreds_sigma0[i] = xopt_i[0]
     bspreds_eta[i] = xopt_i[1]
@@ -44,5 +43,5 @@ ds = xr.Dataset({
     'eta':    xr.DataArray(bspreds_eta,    coords=[iter], dims=['iter']),
     'alpha':  xr.DataArray(bspreds_alpha,  coords=[iter], dims=['iter']), 
 })
-filepath = '../../../hyperdrought_data/output/PM_MLEv2_precip_LENS1_GMST_'+str(nboot)+'_validation.nc'
+filepath = '../../../hyperdrought_data/output/MLE_precip_RI_GMST_'+str(nboot)+'_validation.nc'
 ds.to_netcdf(join(currentdir,filepath))

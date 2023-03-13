@@ -13,17 +13,17 @@ import processing.lens as lens
 import processing.math as pmath
 import processing.series as se
 
-index = ['tau fu', 'tau ac', 'rr a-f', 'far a-f', 'delta a-f']
+index = ['tau ac','tau fu', 'rr a-f', 'far a-f', 'delta a-f']
 columns = ['raw', '95ci lower', '95ci upper', '1percentile']
 df = pd.DataFrame(columns=columns, index=index)
 
-ac_year = '2016'
+ac_year = '2019'
 fu_year = '2070'
 
 # raw values
 
 lens2_gmst_full = gmst.get_gmst_annual_lens2_ensmean()
-lens2_prec_full = lens.get_LENS2_JFM_precip_NOAA_PM_NN()
+lens2_prec_full = lens.get_LENS2_annual_precip_NOAA_RI()
 
 lens2_gmst = lens2_gmst_full.sel(time=slice('2010', '2100'))
 lens2_prec = lens2_prec_full.sel(time=slice('2010', '2100'))
@@ -42,7 +42,7 @@ eta_MLE = eta
 
 # get ev value 
 
-tau_ac = 52
+tau_ac = 28
 
 ev = gamma.ppf(1/tau_ac, eta, 0, sig_MLE_ac)
 
@@ -65,8 +65,8 @@ df.loc['far a-f', 'raw'] = far_af
 df.loc['delta a-f', 'raw'] = delta
 
 # bootstrap MLE
-nboot = 1000
-filepath = '../../../hyperdrought_data/output/MLE_2016ee_LENS2_GMST_'+str(nboot)+'_future_PM_NN.nc'
+nboot = 10
+filepath = '../../../hyperdrought_data/output/MLE_2019ee_LENS2_GMST_'+str(nboot)+'_future_RI.nc'
 bspreds = xr.open_dataset(join(currentdir, filepath))
 bspreds_sigma0 = bspreds.sigma0.values
 bspreds_eta = bspreds.eta.values
@@ -94,7 +94,7 @@ for i in range(nboot):
     far_af_i = (tau_ac_i-tau_fu_i)/tau_ac_i
     ev2_i = gamma.ppf(1/tau_ac_i, eta_dist[i], 0, sig_fu_dist[i])
     delta_i = 100*(ev2_i - ev)/ev
-    
+
     bspreds_tau_fu[i] = tau_fu_i
     bspreds_tau_ac[i] = tau_ac_i
     bspreds_rr_af[i] = rr_af_i
@@ -111,4 +111,4 @@ for col, thr in mapping:
     df.loc['delta a-f', col] = np.quantile(bspreds_delta, [thr], axis = 0)
 
 df = df.applymap(lambda x: round(float(x),2))
-df.to_csv(join(currentdir,f'../../../hyperdrought_data/output/metrics_LENS2_MLE_{ac_year}_{fu_year}_gammafit_2010_2100_by_return_period_PM_NN.csv'))
+df.to_csv(join(currentdir,f'../../../hyperdrought_data/output/metrics_LENS2_MLE_{ac_year}_{fu_year}_gammafit_2010_2100_by_return_period_RI.csv'))

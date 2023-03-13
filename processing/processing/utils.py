@@ -198,3 +198,37 @@ def get_return_period_cr2met():
                 matrix[i,j] = tau_ac
     da = xr.DataArray(matrix, coords = [cr2met_data.lat, cr2met_data.lon], dims=['lat', 'lon'])
     return da
+
+def get_return_period_cr2met_2016ee():
+    
+    cr2met_data = cr2v25.get_cr2met_JFM_precip_acc()
+    mask = cr2v25.get_cl_mask()
+    cr2met_data = cr2met_data*mask
+    t,n,m = cr2met_data.shape
+    matrix = np.zeros((n,m))
+
+    sm = gmst.get_gmst_annual_5year_smooth().sel(time=slice('1960', '2021'))
+    sm_no2019 = sm.where(sm.time.dt.year != 2016, drop=True)
+
+    for i in range(n):
+        for j in range(m):
+            if np.isnan(mask[i,j].values):
+                matrix[i,j] = np.nan
+            else:
+                series = cr2met_data[:, i,j]
+                series_n02019 = series.where(series.time.dt.year != 2016, drop=True)
+                xopt = pmath.mle_gamma_2d_fast(series_n02019.values, sm_no2019.values, [70, 4, -0.5])
+                sigma0, eta, alpha = xopt
+                sigma = sigma0*np.exp(alpha*sm)
+                
+                sig_MLE_ac = sigma.sel(time = '2016')
+                eta_MLE = eta
+
+                # get ev value 
+                ev = series.sel(time='2016')
+
+                # get return periods
+                tau_ac = 1/gamma.cdf(ev, eta_MLE, 0, sig_MLE_ac)
+                matrix[i,j] = tau_ac
+    da = xr.DataArray(matrix, coords = [cr2met_data.lat, cr2met_data.lon], dims=['lat', 'lon'])
+    return da

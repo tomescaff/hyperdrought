@@ -35,4 +35,23 @@ def mle_gamma_2d_fast(xarr, Tarr, init_params):
 
     return fmin(func=maxlkh, x0 = init_params, args=(xarr, Tarr))
 
+def mle_gamma_2d_v2(xarr, Tarr, init_params):
+    
+    def gamma_with_trend_shift(x, T, params):
+        sigma0 = params[0]
+        eta = params[1]
+        alpha = params[2]
+        mu0 = sigma0*eta
+        sigma = sigma0*np.exp(alpha*T/mu0)
+        y = gamma.pdf(x, eta, 0, sigma)
+        return y
 
+    def maxlkh(params, *args):
+        xs = args[0]
+        Ts = args[1]
+        f = gamma_with_trend_shift
+        logp = -sum([np.log(f(x,T, params)) for (x,T) in zip(xs, Ts)])
+        return logp
+
+    xopt = fmin(func=maxlkh, x0 = init_params, args=(xarr, Tarr))
+    return xopt

@@ -26,14 +26,14 @@ lens1_prec_arr = np.ravel(lens1_prec_norm.values)
 
 
 # # bootstrap
-nboot = 1000
+nboot = 10
 bspreds_sigma0 = np.zeros((nboot,))
 bspreds_eta = np.zeros((nboot,))
 bspreds_alpha = np.zeros((nboot,))
 
 for i in range(nboot):
     qn_i, sm_i = bootstrap(lens1_prec_arr, lens1_gmst_arr)
-    xopt_i = pmath.mle_gamma_2d_fast(qn_i, sm_i, [0.09, 10.83, -0.09])
+    xopt_i = pmath.mle_gamma_2d_v2(qn_i, sm_i, [0.09, 10.83, -0.09])
     bspreds_sigma0[i] = xopt_i[0]
     bspreds_eta[i] = xopt_i[1]
     bspreds_alpha[i] = xopt_i[2]
@@ -44,5 +44,5 @@ ds = xr.Dataset({
     'eta':    xr.DataArray(bspreds_eta,    coords=[iter], dims=['iter']),
     'alpha':  xr.DataArray(bspreds_alpha,  coords=[iter], dims=['iter']), 
 })
-filepath = '../../../hyperdrought_data/output/PM_MLE_precip_LENS1_GMST_'+str(nboot)+'_validation_NN.nc'
+filepath = '../../../hyperdrought_data/output/PM_MLEv2_precip_LENS1_GMST_'+str(nboot)+'_validation_NN.nc'
 ds.to_netcdf(join(currentdir,filepath))

@@ -20,18 +20,18 @@ pm = pmf.sel(time=slice('1950','2021'))
 
 pm = pm/pm.mean('time')
 
-sm = sm.where(sm.time.dt.year != 2019, drop=True)
-pm = pm.where(pm.time.dt.year != 2019, drop=True)
+sm = sm.where(sm.time.dt.year != 2016, drop=True)
+pm = pm.where(pm.time.dt.year != 2016, drop=True)
 
 # # bootstrap
-nboot = 100
+nboot = 10
 bspreds_sigma0 = np.zeros((nboot,))
 bspreds_eta = np.zeros((nboot,))
 bspreds_alpha = np.zeros((nboot,))
 
 for i in range(nboot):
     pm_i, sm_i = bootstrap(pm.values, sm.values)
-    xopt_i = pmath.mle_gamma_2d_fast(pm_i, sm_i, [0.09, 10.83, -0.09])
+    xopt_i = pmath.mle_gamma_2d_v2(pm_i, sm_i, [0.09, 10.83, -0.09])
     bspreds_sigma0[i] = xopt_i[0]
     bspreds_eta[i] = xopt_i[1]
     bspreds_alpha[i] = xopt_i[2]
@@ -42,5 +42,5 @@ ds = xr.Dataset({
     'eta':    xr.DataArray(bspreds_eta,    coords=[iter], dims=['iter']),
     'alpha':  xr.DataArray(bspreds_alpha,  coords=[iter], dims=['iter']), 
 })
-filepath = '../../../hyperdrought_data/output/PM_MLE_precip_PM_GMST_'+str(nboot)+'_validation.nc'
+filepath = '../../../hyperdrought_data/output/PM_MLEv2_precip_PM_GMST_'+str(nboot)+'_validation.nc'
 ds.to_netcdf(join(currentdir,filepath))

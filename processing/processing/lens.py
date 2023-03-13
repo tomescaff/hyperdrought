@@ -2,6 +2,8 @@ import xarray as xr
 import pandas as pd
 import numpy as np
 from os.path import join, abspath, dirname
+from . import cr2met_v25 as cr2v25
+from shapely.geometry import Point
 
 currentdir = dirname(abspath(__file__))
 relpath = '../../../hyperdrought_data/'
@@ -79,6 +81,22 @@ def get_LENS2_annual_precip_NOAA_QN_NN():
     lon, lat = -70.6828, -33.4450
     qn = lens2.sel(lat = lat, lon = lon%360, method='nearest').drop(['lat','lon'])
     return qn
+
+def get_LENS2_annual_precip_NOAA_RI():
+    # spamean
+    
+    da = get_LENS2_annual_precip_NOAA()
+
+    polygon = cr2v25.get_regional_shape()
+    r, t, n, m = da.shape
+    for i in range(n):
+        for j in range(m):
+            point = Point((float(da.lon[j].values)+180)%360-180, float(da.lat[i].values))
+            if not polygon.contains(point):
+                da[:,:,i,j] = np.nan
+                
+    da = da.mean(['lat','lon'])
+    return da
 
 def get_LENS2_MJJAS_precip(init_date='1850-01-01', end_date='2100-12-31'):
 
@@ -214,6 +232,38 @@ def get_LENS1_annual_precip_control_run_QN_NN():
     da = xr.DataArray(qn_annual, coords=[qn[init[0]::12].time], dims=['time'])
     return da
 
+def get_LENS1_annual_precip_control_run_RI():
+    
+    filename = 'LENS_pr_mon_mean_control_run_chile.nc'
+    filepath = join(currentdir, relpath, 'LENS_ALL', filename)
+    ds = xr.open_dataset(filepath)
+    da = ds['PRECT']
+
+    polygon = cr2v25.get_regional_shape()
+    r, n, m = da.shape
+    for i in range(n):
+        for j in range(m):
+            point = Point((float(da.lon[j].values)+180)%360-180, float(da.lat[i].values))
+            if not polygon.contains(point):
+                da[:,i,j] = np.nan
+                
+    da = da.mean(['lat','lon'])
+
+    qn = da*1000*3600*24
+    init = list(range(12))
+    days = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+    
+    qn_annual = qn[init[0]::12].values*days[0]
+    for i, d in zip(init, days):
+        if i == 0:
+            continue
+        else:
+            monthly = qn[i::12].values*d
+            qn_annual = qn_annual + monthly
+    
+    da = xr.DataArray(qn_annual, coords=[qn[init[0]::12].time], dims=['time'])
+    return da
+
 def get_LENS1_annual_precip_NOAA(init_date='1920-01-01', end_date='2100-12-31'):
     
     filename = 'LENS_PRECT_NOAA_mon.nc'
@@ -244,6 +294,20 @@ def get_LENS1_annual_precip_NOAA_QN_NN():
     lon, lat = -70.6828, -33.4450
     pm = lens1.sel(lat = lat, lon = lon%360, method='nearest').drop(['lat','lon'])
     return pm
+
+def get_LENS1_annual_precip_NOAA_RI():
+    
+    da = get_LENS1_annual_precip_NOAA()
+    polygon = cr2v25.get_regional_shape()
+    r, t, n, m = da.shape
+    for i in range(n):
+        for j in range(m):
+            point = Point((float(da.lon[j].values)+180)%360-180, float(da.lat[i].values))
+            if not polygon.contains(point):
+                da[:,:,i,j] = np.nan
+                
+    da = da.mean(['lat','lon'])
+    return da
 
 def get_LENS1_MJJAS_precip_NOAA(init_date='1920-01-01', end_date='2100-12-31'):
     

@@ -13,28 +13,28 @@ import processing.lens as lens
 import processing.math as pmath
 import processing.series as se
 
-index = ['tau fu', 'tau ac', 'rr a-f', 'far a-f', 'delta a-f']
+index = ['tau ac', 'tau fu', 'rr a-f', 'far a-f', 'delta a-f']
 columns = ['raw', '95ci lower', '95ci upper', '1percentile']
 df = pd.DataFrame(columns=columns, index=index)
 
-ac_year = '2016'
+ac_year = '2019'
 fu_year = '2070'
 
 # raw values
 
-lens2_gmst_full = gmst.get_gmst_annual_lens2_ensmean()
-lens2_prec_full = lens.get_LENS2_JFM_precip_NOAA_PM_NN()
+lens1_gmst_full = gmst.get_gmst_annual_lens1_ensmean()
+lens1_prec_full = lens.get_LENS1_annual_precip_NOAA_RI()
 
-lens2_gmst = lens2_gmst_full.sel(time=slice('2010', '2100'))
-lens2_prec = lens2_prec_full.sel(time=slice('2010', '2100'))
+lens1_gmst = lens1_gmst_full.sel(time=slice('2010', '2100'))
+lens1_prec = lens1_prec_full.sel(time=slice('2010', '2100'))
 
-lens2_gmst_arr = np.tile(lens2_gmst.values, lens2_prec.shape[0])
-lens2_prec_arr = np.ravel(lens2_prec.values)
+lens1_gmst_arr = np.tile(lens1_gmst.values, lens1_prec.shape[0])
+lens1_prec_arr = np.ravel(lens1_prec.values)
 
-xopt = pmath.mle_gamma_2d(lens2_prec_arr, lens2_gmst_arr, [70, 4, -0.5])
+xopt = pmath.mle_gamma_2d(lens1_prec_arr, lens1_gmst_arr, [70, 4, -0.5])
 
 sigma0, eta, alpha = xopt
-sigma = sigma0*np.exp(alpha*lens2_gmst_full)
+sigma = sigma0*np.exp(alpha*lens1_gmst_full)
 
 sig_MLE_ac = sigma.sel(time = ac_year)
 sig_MLE_fu = sigma.sel(time = fu_year)
@@ -42,7 +42,7 @@ eta_MLE = eta
 
 # get ev value 
 
-tau_ac = 52
+tau_ac = 28
 
 ev = gamma.ppf(1/tau_ac, eta, 0, sig_MLE_ac)
 
@@ -65,15 +65,15 @@ df.loc['far a-f', 'raw'] = far_af
 df.loc['delta a-f', 'raw'] = delta
 
 # bootstrap MLE
-nboot = 1000
-filepath = '../../../hyperdrought_data/output/MLE_2016ee_LENS2_GMST_'+str(nboot)+'_future_PM_NN.nc'
+nboot = 10
+filepath = '../../../hyperdrought_data/output/MLE_2019ee_LENS1_GMST_'+str(nboot)+'_future_RI.nc'
 bspreds = xr.open_dataset(join(currentdir, filepath))
 bspreds_sigma0 = bspreds.sigma0.values
 bspreds_eta = bspreds.eta.values
 bspreds_alpha = bspreds.alpha.values
 
-Tac = lens2_gmst_full.sel(time = ac_year).values
-Tfu = lens2_gmst_full.sel(time = fu_year).values
+Tac = lens1_gmst_full.sel(time = ac_year).values
+Tfu = lens1_gmst_full.sel(time = fu_year).values
 
 sig_ac_dist = bspreds_sigma0*np.exp(bspreds_alpha*Tac)
 sig_fu_dist = bspreds_sigma0*np.exp(bspreds_alpha*Tfu)
@@ -94,7 +94,7 @@ for i in range(nboot):
     far_af_i = (tau_ac_i-tau_fu_i)/tau_ac_i
     ev2_i = gamma.ppf(1/tau_ac_i, eta_dist[i], 0, sig_fu_dist[i])
     delta_i = 100*(ev2_i - ev)/ev
-    
+
     bspreds_tau_fu[i] = tau_fu_i
     bspreds_tau_ac[i] = tau_ac_i
     bspreds_rr_af[i] = rr_af_i
@@ -111,4 +111,4 @@ for col, thr in mapping:
     df.loc['delta a-f', col] = np.quantile(bspreds_delta, [thr], axis = 0)
 
 df = df.applymap(lambda x: round(float(x),2))
-df.to_csv(join(currentdir,f'../../../hyperdrought_data/output/metrics_LENS2_MLE_{ac_year}_{fu_year}_gammafit_2010_2100_by_return_period_PM_NN.csv'))
+df.to_csv(join(currentdir,f'../../../hyperdrought_data/output/metrics_LENS1_MLE_{ac_year}_{fu_year}_gammafit_2010_2100_by_return_period_RI.csv'))

@@ -9,42 +9,42 @@ currentdir = dirname(abspath(__file__))
 sys.path.append(join(currentdir, '../../processing'))
 
 import processing.gmst as gmst
-import processing.lens as lens
-import processing.math as pmath
 import processing.series as se
+import processing.math as pmath
+import processing.cr2met_v25 as cr2met
 
-index = ['tau fu', 'tau ac', 'rr a-f', 'far a-f', 'delta a-f']
+index = ['tau ac', 'tau fu', 'rr a-f', 'far a-f', 'delta a-f']
 columns = ['raw', '95ci lower', '95ci upper', '1percentile']
 df = pd.DataFrame(columns=columns, index=index)
 
-ac_year = '2016'
+ac_year = '2019'
 fu_year = '2070'
+
+lens1_gmst_full = gmst.get_gmst_annual_lens1_ensmean()
+T2070 = lens1_gmst_full.sel(time='2070').values
 
 # raw values
 
-lens2_gmst_full = gmst.get_gmst_annual_lens2_ensmean()
-lens2_prec_full = lens.get_LENS2_JFM_precip_NOAA_PM_NN()
+smf = gmst.get_gmst_annual_5year_smooth()
+qnf = cr2met.get_regional_index().sel(time=slice('1960', '2021'))
 
-lens2_gmst = lens2_gmst_full.sel(time=slice('2010', '2100'))
-lens2_prec = lens2_prec_full.sel(time=slice('2010', '2100'))
+sm = smf.sel(time=slice('1960','2021'))
+qn = qnf.sel(time=slice('1960','2021'))
 
-lens2_gmst_arr = np.tile(lens2_gmst.values, lens2_prec.shape[0])
-lens2_prec_arr = np.ravel(lens2_prec.values)
+sm_no2019 = sm.where(sm.time.dt.year != 2019, drop=True)
+qn_no2019 = qn.where(qn.time.dt.year != 2019, drop=True)
 
-xopt = pmath.mle_gamma_2d(lens2_prec_arr, lens2_gmst_arr, [70, 4, -0.5])
+xopt = pmath.mle_gamma_2d(qn_no2019.values, sm_no2019.values, [70, 4, -0.5])
 
 sigma0, eta, alpha = xopt
-sigma = sigma0*np.exp(alpha*lens2_gmst_full)
+sigma = sigma0*np.exp(alpha*smf)
 
 sig_MLE_ac = sigma.sel(time = ac_year)
-sig_MLE_fu = sigma.sel(time = fu_year)
+sig_MLE_fu = sigma0*np.exp(alpha*T2070)
 eta_MLE = eta
 
 # get ev value 
-
-tau_ac = 52
-
-ev = gamma.ppf(1/tau_ac, eta, 0, sig_MLE_ac)
+ev = qn.sel(time='2019')
 
 # get return periods
 tau_fu = 1/gamma.cdf(ev, eta, 0, sig_MLE_fu)
@@ -60,23 +60,23 @@ delta = 100*(ev2 - ev)/ev
 
 df.loc['tau fu', 'raw'] = tau_fu
 df.loc['tau ac', 'raw'] = tau_ac
-df.loc['rr a-f', 'raw'] = rr_af 
+df.loc['rr a-f', 'raw'] = rr_af
 df.loc['far a-f', 'raw'] = far_af
 df.loc['delta a-f', 'raw'] = delta
 
 # bootstrap MLE
-nboot = 1000
-filepath = '../../../hyperdrought_data/output/MLE_2016ee_LENS2_GMST_'+str(nboot)+'_future_PM_NN.nc'
+nboot = 10
+filepath = '../../../hyperdrought_data/output/MLE_precip_RI_GMST_'+str(nboot)+'_evaluation.nc'
 bspreds = xr.open_dataset(join(currentdir, filepath))
 bspreds_sigma0 = bspreds.sigma0.values
 bspreds_eta = bspreds.eta.values
 bspreds_alpha = bspreds.alpha.values
 
-Tac = lens2_gmst_full.sel(time = ac_year).values
-Tfu = lens2_gmst_full.sel(time = fu_year).values
+Tac = smf.sel(time = ac_year).values
+Tcf = T2070
 
 sig_ac_dist = bspreds_sigma0*np.exp(bspreds_alpha*Tac)
-sig_fu_dist = bspreds_sigma0*np.exp(bspreds_alpha*Tfu)
+sig_fu_dist = bspreds_sigma0*np.exp(bspreds_alpha*Tcf)
 eta_dist = bspreds_eta
 
 bspreds_tau_fu = np.zeros((nboot,))
@@ -94,7 +94,7 @@ for i in range(nboot):
     far_af_i = (tau_ac_i-tau_fu_i)/tau_ac_i
     ev2_i = gamma.ppf(1/tau_ac_i, eta_dist[i], 0, sig_fu_dist[i])
     delta_i = 100*(ev2_i - ev)/ev
-    
+
     bspreds_tau_fu[i] = tau_fu_i
     bspreds_tau_ac[i] = tau_ac_i
     bspreds_rr_af[i] = rr_af_i
@@ -111,4 +111,4 @@ for col, thr in mapping:
     df.loc['delta a-f', col] = np.quantile(bspreds_delta, [thr], axis = 0)
 
 df = df.applymap(lambda x: round(float(x),2))
-df.to_csv(join(currentdir,f'../../../hyperdrought_data/output/metrics_LENS2_MLE_{ac_year}_{fu_year}_gammafit_2010_2100_by_return_period_PM_NN.csv'))
+df.to_csv(join(currentdir,f'../../../hyperdrought_data/output/metrics_RI_MLE_{ac_year}_{fu_year}_gammafit_1960_2021.csv'))
